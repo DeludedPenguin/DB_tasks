@@ -132,6 +132,39 @@ def export_completed_csv():
     
     return response
 
+@app.route('/edit/<int:task_id>')
+def edit_task(task_id):
+    task = Task.query.get_or_404(task_id)
+    projects = Project.query.all()
+    return render_template('edit_task.html', task=task, projects=projects, title="Edit Task")
+
+@app.route('/edit/<int:task_id>', methods=['POST'])
+def update_task(task_id):
+    task = Task.query.get_or_404(task_id)
+    
+    task.name = request.form['task']
+    
+    # Update dates
+    do_date = request.form['do_date'] if request.form['do_date'] else None
+    due_date = request.form['due_date'] if request.form['due_date'] else None
+    
+    if do_date:
+        task.do_date = datetime.strptime(do_date, '%Y-%m-%d').date()
+    else:
+        task.do_date = None
+        
+    if due_date:
+        task.due_date = datetime.strptime(due_date, '%Y-%m-%d').date()
+    else:
+        task.due_date = None
+    
+    # Update priority and project
+    task.priority = int(request.form['priority']) if request.form['priority'] else 0
+    task.project_id = int(request.form['project_id']) if request.form['project_id'] else None
+    
+    db.session.commit()
+    return redirect(url_for('home'))
+
 @app.route('/timer')
 def timer():
     return render_template('timer.html', title="Focus Timer")

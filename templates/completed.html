@@ -59,6 +59,7 @@
                     Completed: {{ task.created_at.strftime('%Y-%m-%d') }}
                 </small>
                 <div>
+                    <a href="/edit/{{ task.id }}" style="color: #ffcc00;">✏️ Edit</a>
                     <a href="/delete/{{ task.id }}" class="delete-btn">Delete</a>
                 </div>
             </div>

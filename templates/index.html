@@ -12,10 +12,38 @@
         .task { 
             padding: 10px; 
             border-bottom: 1px solid #444; 
-            display: flex; 
-            justify-content: space-between; 
+            display: grid;
+            grid-template-columns: 1fr auto auto auto;
+            gap: 15px;
             align-items: center;
         }
+
+        .task-content {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .task-meta {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            justify-content: flex-end;
+            min-width: 120px;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            white-space: nowrap;
+        }
+
+        .priority-badge {
+            min-width: 80px;
+            text-align: center;
+        }
+
         .completed { text-decoration: line-through; color: #888; }
         input, button, select { 
             padding: 8px; 
@@ -94,22 +122,30 @@
     {% if tasks %}
         {% for task in tasks %}
             <div class="task {{ 'completed' if task.completed else '' }}">
-                <span>
+                <div class="task-content">
                     {% if task.project %}
                         <span class="project-tag" style="background-color: {{ task.project.color }}; color: white;">[{{ task.project.name }}]</span>
                     {% endif %}
-                    {{ task.name }}
-                </span>
-                {% if task.priority_text %}
-                    <span style="color: {{ task.priority_color }}; font-weight: bold;">[{{ task.priority_text }}]</span>
-                {% endif %}
-                <small>
-                    {% if task.do_date %}Do: {{ task.do_date }}{% endif %}
-                    {% if task.due_date %}Due: {{ task.due_date }}{% endif %}
-                </small>
-                <div>
+                    <span>{{ task.name }}</span>
+                </div>
+                
+                <div class="priority-badge">
+                    {% if task.priority_text %}
+                        <span style="color: {{ task.priority_color }}; font-weight: bold;">[{{ task.priority_text }}]</span>
+                    {% endif %}
+                </div>
+                
+                <div class="task-meta">
+                    <small>
+                        {% if task.do_date %}Do: {{ task.do_date }}{% endif %}
+                        {% if task.due_date %}Due: {{ task.due_date }}{% endif %}
+                    </small>
+                </div>
+                
+                <div class="task-actions">
                     {% if not task.completed %}
                         <a href="/complete/{{ task.id }}">✓ Complete</a>
+                        <a href="/edit/{{ task.id }}" style="color: #ffcc00;">✏️ Edit</a>
                     {% endif %}
                     <a href="/delete/{{ task.id }}" class="delete-btn">Delete</a>
                 </div>

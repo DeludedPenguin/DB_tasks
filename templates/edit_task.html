@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ title }}</title>
+    <style>
+        body { 
+            font-family: 'Monaco', 'Menlo', 'Consolas', monospace; 
+            margin: 40px; 
+            background-color: #2d2d2d; 
+            color: #00ff41; 
+        }
+        input, button, select, textarea { 
+            padding: 10px; 
+            margin: 10px 0; 
+            background-color: #1a1a1a; 
+            color: #00ff41; 
+            border: 1px solid #555; 
+            font-family: inherit;
+        }
+        input[type="text"] { width: 400px; }
+        textarea { width: 400px; height: 100px; resize: vertical; }
+        button { 
+            background-color: #333; 
+            cursor: pointer; 
+            padding: 10px 20px;
+        }
+        button:hover { background-color: #555; }
+        .cancel-btn {
+            background-color: #666;
+            color: #ccc;
+        }
+        .cancel-btn:hover { background-color: #777; }
+        .nav { margin-bottom: 20px; }
+        .nav a { 
+            color: #00cc33; 
+            text-decoration: none; 
+            font-weight: bold;
+        }
+        .nav a:hover { color: #00ff41; }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #66ff66;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <a href="/">← Cancel and Return to Tasks</a>
+    </div>
+    
+    <h1>✏️ Edit Task</h1>
+    
+    <form method="POST">
+        <div class="form-group">
+            <label>Task Name:</label>
+            <input type="text" name="task" value="{{ task.name }}" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Do Date:</label>
+            <input type="date" name="do_date" value="{{ task.do_date.strftime('%Y-%m-%d') if task.do_date else '' }}">
+        </div>
+        
+        <div class="form-group">
+            <label>Due Date:</label>
+            <input type="date" name="due_date" value="{{ task.due_date.strftime('%Y-%m-%d') if task.due_date else '' }}">
+        </div>
+        
+        <div class="form-group">
+            <label>Priority:</label>
+            <select name="priority">
+                <option value="0" {{ 'selected' if task.priority == 0 else '' }}>None</option>
+                <option value="1" {{ 'selected' if task.priority == 1 else '' }}>Low</option>
+                <option value="2" {{ 'selected' if task.priority == 2 else '' }}>Medium</option>
+                <option value="3" {{ 'selected' if task.priority == 3 else '' }}>High</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label>Project:</label>
+            <select name="project_id">
+                <option value="" {{ 'selected' if not task.project_id else '' }}>No Project</option>
+                {% for project in projects %}
+                    <option value="{{ project.id }}" {{ 'selected' if task.project_id == project.id else '' }}>
+                        {{ project.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div style="margin-top: 30px;">
+            <button type="submit">💾 Save Changes</button>
+            <a href="/" class="cancel-btn" style="display: inline-block; padding: 10px 20px; text-decoration: none; margin-left: 10px;">Cancel</a>
+        </div>
+    </form>
+</body>
+</html>
