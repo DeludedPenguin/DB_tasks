@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ title }}</title>
+    <style>
+        body { 
+            font-family: 'Monaco', 'Menlo', 'Consolas', monospace; 
+            margin: 40px; 
+            background-color: #2d2d2d; 
+            color: #00ff41; 
+            text-align: center;
+        }
+        .timer-btn {
+            background-color: #333;
+            color: #00ff41;
+            border: 2px solid #555;
+            padding: 20px 40px;
+            margin: 10px;
+            font-size: 18px;
+            font-family: inherit;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .timer-btn:hover { background-color: #555; }
+        .nav { margin-bottom: 30px; }
+        .nav a { color: #00cc33; text-decoration: none; font-weight: bold; }
+        .nav a:hover { color: #00ff41; }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <a href="/">← back to tasks</a> | 
+        <a href="/timer/log">view focus log</a>
+    </div>
+    
+    <h1>⏲️ focus timer</h1>
+    <p>choose your focus session length:</p>
+    
+    <form method="POST" action="/timer/start">
+        <button type="submit" name="duration" value="10" class="timer-btn">
+            ⚡ quick<br><small>10 minutes</small>
+        </button>
+        
+        <button type="submit" name="duration" value="25" class="timer-btn">
+            🍅 pomodoro<br><small>25 minutes</small>
+        </button>
+        
+        <button type="submit" name="duration" value="30" class="timer-btn">
+            🧠 deep work<br><small>30 minutes</small>
+        </button>
+    </form>
+</body>
+</html>

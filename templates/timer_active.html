@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ title }}</title>
+    <style>
+        body { 
+            font-family: 'Monaco', 'Menlo', 'Consolas', monospace; 
+            margin: 40px; 
+            background-color: #2d2d2d; 
+            color: #00ff41; 
+            text-align: center;
+        }
+        .timer-display {
+            font-size: 72px;
+            font-weight: bold;
+            margin: 50px 0;
+            color: #00ff41;
+        }
+        .timer-display.warning { color: #ffcc00; }
+        .timer-display.urgent { color: #ff4444; }
+        .complete-section {
+            margin-top: 40px;
+            padding: 20px;
+            border: 1px solid #555;
+            background-color: #1a1a1a;
+            border-radius: 5px;
+            display: none;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            background-color: #2d2d2d;
+            color: #00ff41;
+            border: 1px solid #555;
+            padding: 10px;
+            font-family: inherit;
+            resize: vertical;
+        }
+        button {
+            background-color: #333;
+            color: #00ff41;
+            border: 1px solid #555;
+            padding: 10px 20px;
+            font-family: inherit;
+            cursor: pointer;
+            margin: 10px;
+        }
+        button:hover { background-color: #555; }
+        .stop-btn { background-color: #ff4444; color: white; }
+        .stop-btn:hover { background-color: #ff6666; }
+    </style>
+</head>
+<body>
+    <h1>Focus Session In Progress</h1>
+    <div class="timer-display" id="timer">{{ timer.planned_minutes }}:00</div>
+    
+    <button onclick="stopTimer()" class="stop-btn">Stop Timer</button>
+    
+    <div class="complete-section" id="complete-section">
+        <h3>Session Complete!</h3>
+        <form method="POST" action="/timer/{{ timer.id }}/complete">
+            <p>What did you accomplish in this session?</p>
+            <textarea name="notes" placeholder="Notes about this focus session..."></textarea><br>
+            <button type="submit">Save Session</button>
+        </form>
+    </div>
+
+    <script>
+        let startTime = new Date('{{ timer.start_time.isoformat() }}Z');
+        let plannedMinutes = {{ timer.planned_minutes }};
+        let totalSeconds = plannedMinutes * 60;
+        let timerFinished = false;
+
+        function updateTimer() {
+            let now = new Date();
+            let elapsed = Math.floor((now - startTime) / 1000);
+            let remaining = totalSeconds - elapsed;
+            
+            if (remaining <= 0 && !timerFinished) {
+                // Timer finished
+                document.getElementById('timer').textContent = '00:00';
+                document.getElementById('timer').className = 'timer-display urgent';
+                document.getElementById('complete-section').style.display = 'block';
+                timerFinished = true;
+                
+                // Play notification sound (if browser allows)
+                try {
+                    new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmocCDuBzvHZiTYHGGm98OScTgwOUarm7q9tEgn+ZmRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRk'); 
+                } catch(e) {}
+                
+                return;
+            }
+            
+            let minutes = Math.floor(remaining / 60);
+            let seconds = remaining % 60;
+            
+            let display = String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+            document.getElementById('timer').textContent = display;
+            
+            // Change colors as time runs out
+            if (remaining <= 60) {
+                document.getElementById('timer').className = 'timer-display urgent';
+            } else if (remaining <= 300) {
+                document.getElementById('timer').className = 'timer-display warning';
+            }
+        }
+
+        function stopTimer() {
+            document.getElementById('complete-section').style.display = 'block';
+            clearInterval(timerInterval);
+        }
+
+        // Update timer every second
+        let timerInterval = setInterval(updateTimer, 1000);
+        updateTimer(); // Run once immediately
+    </script>
+</body>
+</html>

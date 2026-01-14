@@ -1,5 +1,8 @@
-from flask import Flask, render_template, request, redirect, url_for
-from models import db, Task
+import csv
+from io import StringIO
+from flask import Flask, render_template, request, redirect, url_for, make_response
+from models import db, Task, Timer
+from datetime import datetime, timezone
 
 app = Flask(__name__)
 
@@ -17,7 +20,7 @@ def home():
                      .order_by((Task.due_date == None), Task.due_date, Task.priority.desc())\
                      .all()
     return render_template('index.html', 
-                         title="My Task Manager", 
+                         title="DB_tasks", 
                          tasks=tasks)
 
 @app.route('/add', methods=['POST'])
@@ -65,9 +68,154 @@ def completed_tasks():
                          title="Completed Tasks", 
                          tasks=tasks)
 
+@app.route('/export/active')
+def export_active_csv():
+    # Get all active tasks
+    tasks = Task.query.filter_by(completed=False)\
+                     .order_by((Task.due_date == None), Task.due_date, Task.priority.desc())\
+                     .all()
+    
+    # Create CSV content
+    output = StringIO()
+    writer = csv.writer(output)
+    
+    # Write header
+    writer.writerow(['Name', 'Priority', 'Do Date', 'Due Date', 'Created At'])
+    
+    # Write task data
+    for task in tasks:
+        writer.writerow([
+            task.name,
+            task.priority_text,
+            task.do_date.strftime('%Y-%m-%d') if task.do_date else '',
+            task.due_date.strftime('%Y-%m-%d') if task.due_date else '',
+            task.created_at.strftime('%Y-%m-%d %H:%M:%S')
+        ])
+    
+    # Create response
+    response = make_response(output.getvalue())
+    response.headers['Content-Type'] = 'text/csv'
+    response.headers['Content-Disposition'] = 'attachment; filename=active_tasks.csv'
+    
+    return response
+
+@app.route('/export/completed')
+def export_completed_csv():
+    # Get all completed tasks
+    tasks = Task.query.filter_by(completed=True)\
+                     .order_by(Task.created_at.desc())\
+                     .all()
+    
+    # Create CSV content
+    output = StringIO()
+    writer = csv.writer(output)
+    
+    # Write header
+    writer.writerow(['Name', 'Priority', 'Do Date', 'Due Date', 'Created At', 'Completed'])
+    
+    # Write task data
+    for task in tasks:
+        writer.writerow([
+            task.name,
+            task.priority_text,
+            task.do_date.strftime('%Y-%m-%d') if task.do_date else '',
+            task.due_date.strftime('%Y-%m-%d') if task.due_date else '',
+            task.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+            'Yes'  # All these tasks are completed
+        ])
+    
+    # Create response
+    response = make_response(output.getvalue())
+    response.headers['Content-Type'] = 'text/csv'
+    response.headers['Content-Disposition'] = 'attachment; filename=completed_tasks.csv'
+    
+    return response
+
+@app.route('/timer')
+def timer():
+    return render_template('timer.html', title="Focus Timer")
+
+@app.route('/timer/start', methods=['POST'])
+def start_timer():
+    from datetime import datetime
+    
+    planned_minutes = int(request.form['duration'])
+    
+    # Create new timer session
+    timer = Timer(
+        start_time=datetime.now(timezone.utc),
+        planned_minutes=planned_minutes,
+        date=datetime.now(timezone.utc).date()
+    )
+    db.session.add(timer)
+    db.session.commit()
+    
+    return redirect(url_for('timer_active', timer_id=timer.id))
+
+@app.route('/timer/<int:timer_id>')
+def timer_active(timer_id):
+    timer = Timer.query.get_or_404(timer_id)
+    return render_template('timer_active.html', timer=timer, title="Timer Running")
+
+@app.route('/timer/<int:timer_id>/complete', methods=['POST'])
+def complete_timer(timer_id):
+    from datetime import datetime
+    
+    timer = Timer.query.get_or_404(timer_id)
+    timer.end_time = datetime.now(timezone.utc)
+
+    # Calculate actual duration in minutes
+    duration = timer.end_time - timer.start_time
+    timer.duration_minutes = int(duration.total_seconds() / 60)
+    
+    timer.notes = request.form.get('notes', '')
+    db.session.commit()
+    
+    return redirect(url_for('timer_log'))
+
+@app.route('/timer/log')
+def timer_log():
+    # Show recent timer sessions
+    timers = Timer.query.filter(Timer.end_time != None)\
+                       .order_by(Timer.start_time.desc())\
+                       .limit(20).all()
+    return render_template('timer_log.html', timers=timers, title="Focus Sessions")
+
+@app.route('/export/timers')
+def export_timers_csv():
+    # Get all completed timer sessions
+    timers = Timer.query.filter(Timer.end_time != None)\
+                       .order_by(Timer.start_time.desc())\
+                       .all()
+    
+    # Create CSV content
+    output = StringIO()
+    writer = csv.writer(output)
+    
+    # Write header
+    writer.writerow(['Date', 'Start Time', 'End Time', 'Planned Minutes', 'Actual Minutes', 'Notes'])
+    
+    # Write timer data
+    for timer in timers:
+        writer.writerow([
+            timer.date.strftime('%Y-%m-%d'),
+            timer.start_time.strftime('%H:%M:%S'),
+            timer.end_time.strftime('%H:%M:%S') if timer.end_time else '',
+            timer.planned_minutes,
+            timer.duration_minutes or '',
+            timer.notes or ''
+        ])
+    
+    # Create response
+    response = make_response(output.getvalue())
+    response.headers['Content-Type'] = 'text/csv'
+    response.headers['Content-Disposition'] = 'attachment; filename=focus_sessions.csv'
+    
+    return response
+
 # Create database tables
 with app.app_context():
     db.create_all()
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=5001)

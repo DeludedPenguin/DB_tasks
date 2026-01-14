@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ title }}</title>
+    <style>
+        body { 
+            font-family: 'Monaco', 'Menlo', 'Consolas', monospace; 
+            margin: 40px; 
+            background-color: #2d2d2d; 
+            color: #00ff41; 
+        }
+        .session {
+            padding: 15px;
+            border-bottom: 1px solid #444;
+            margin-bottom: 10px;
+        }
+        .session-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .duration {
+            color: #00cc33;
+            font-weight: bold;
+        }
+        .date {
+            color: #66ff66;
+            font-size: 14px;
+        }
+        .notes {
+            background-color: #1a1a1a;
+            padding: 10px;
+            border-left: 3px solid #00cc33;
+            margin-top: 10px;
+            font-style: italic;
+        }
+        .nav { 
+            margin-bottom: 20px; 
+        }
+        .nav a { 
+            margin-right: 15px; 
+            text-decoration: none; 
+            color: #00cc33; 
+            font-weight: bold;
+        }
+        .nav a:hover { color: #00ff41; }
+        .export-btn {
+            background-color: #333;
+            color: #ffcc00;
+            border: 1px solid #555;
+            padding: 8px 15px;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .export-btn:hover { background-color: #555; }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <a href="/">← Back to Tasks</a> | 
+        <a href="/timer">New Timer</a> |
+        <a href="/export/timers" class="export-btn">📊 Export Sessions (CSV)</a>
+    </div>
+    
+    <h1>🕐 Focus Sessions</h1>
+    
+    {% if timers %}
+        {% for timer in timers %}
+            <div class="session">
+                <div class="session-header">
+                    <span class="duration">{{ timer.duration_minutes or timer.planned_minutes }} minutes</span>
+                    <span class="date">{{ timer.start_time.strftime('%Y-%m-%d %H:%M') }}</span>
+                </div>
+                
+                {% if timer.notes %}
+                    <div class="notes">"{{ timer.notes }}"</div>
+                {% else %}
+                    <div class="notes" style="color: #666;">No notes recorded</div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% else %}
+        <p style="color: #66ff66;">No focus sessions yet. <a href="/timer">Start your first timer!</a></p>
+    {% endif %}
+</body>
+</html>

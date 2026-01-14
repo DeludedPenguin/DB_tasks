@@ -3,44 +3,77 @@
 <head>
     <title>{{ title }}</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 40px; }
+        body { 
+            font-family: 'Monaco', 'Menlo', 'Consolas', monospace; 
+            margin: 40px; 
+            background-color: #2d2d2d; 
+            color: #00ff41; 
+        }
         .task { 
             padding: 10px; 
-            border-bottom: 1px solid #eee; 
+            border-bottom: 1px solid #444; 
             display: flex; 
             justify-content: space-between; 
             align-items: center;
         }
         .completed { text-decoration: line-through; color: #888; }
-        input, button { padding: 8px; margin: 5px; }
-        .delete-btn { background: #ff4444; color: white; border: none; padding: 4px 8px; }
+        input, button, select { 
+            padding: 8px; 
+            margin: 5px; 
+            background-color: #1a1a1a; 
+            color: #00ff41; 
+            border: 1px solid #555; 
+            font-family: inherit;
+        }
+        button { background-color: #333; cursor: pointer; }
+        button:hover { background-color: #555; }
         .nav { margin-bottom: 20px; }
-        .nav a { margin-right: 15px; text-decoration: none; color: #007bff; }
+        .nav a { 
+            margin-right: 15px; 
+            text-decoration: none; 
+            color: #00cc33; 
+            font-weight: bold;
+        }
+        .nav a:hover { color: #00ff41; }
+        .delete-btn { 
+            background: #ff4444; 
+            color: white; 
+            border: none; 
+            padding: 4px 8px; 
+            text-decoration: none;
+            font-size: 12px;
+        }
+        .delete-btn:hover { background: #ff6666; }
+        a { color: #00cc33; text-decoration: none; }
+        a:hover { color: #00ff41; }
+        small { color: #66ff66; }
     </style>
 </head>
 <body>
     <h1>{{ title }}</h1>
     
     <div class="nav">
-        <a href="/completed">View Completed Tasks →</a>
+        <a href="/timer" style="color: #ff6666;">⏲️ focus timer</a>
+        <a href="/completed">✅ view completed tasks →</a>
+        <a href="/export/active" style="color: #ffcc00;">📊 export active tasks (CSV)</a>
     </div>
     
     <form method="POST" action="/add">
         <input type="text" name="task" placeholder="Add a new task..." required>
-        <label>Do Date: <input type="date" name="do_date"></label>
-        <label>Due Date: <input type="date" name="due_date"></label>
-        <label>Priority: 
+        <label>do date: <input type="date" name="do_date"></label>
+        <label>due date: <input type="date" name="due_date"></label>
+        <label>priority: 
             <select name="priority">
-                <option value="0">None</option>
-                <option value="1">Low</option>
-                <option value="2">Medium</option>
-                <option value="3">High</option>
+                <option value="0">none</option>
+                <option value="1">low</option>
+                <option value="2">medium</option>
+                <option value="3">high</option>
             </select>
         </label>
-        <button type="submit">Add Task</button>
+        <button type="submit">add task</button>
     </form>
     
-    <h2>Your Tasks:</h2>
+    <h2>active tasks:</h2>
     {% for task in tasks %}
         <div class="task {{ 'completed' if task.completed else '' }}">
             <span>{{ task.name }}</span>
@@ -53,9 +86,9 @@
             </small>
             <div>
                 {% if not task.completed %}
-                    <a href="/complete/{{ task.id }}">✓ Complete</a>
+                    <a href="/complete/{{ task.id }}">✓ complete</a>
                 {% endif %}
-                <a href="/delete/{{ task.id }}" class="delete-btn">Delete</a>
+                <a href="/delete/{{ task.id }}" class="delete-btn">delete</a>
             </div>
         </div>
     {% endfor %}

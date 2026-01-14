@@ -3,23 +3,45 @@
 <head>
     <title>{{ title }}</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 40px; }
+        body { 
+            font-family: 'Monaco', 'Menlo', 'Consolas', monospace; 
+            margin: 40px; 
+            background-color: #2d2d2d; 
+            color: #00ff41; 
+        }
         .task { 
             padding: 10px; 
-            border-bottom: 1px solid #eee; 
+            border-bottom: 1px solid #444; 
             display: flex; 
             justify-content: space-between; 
             align-items: center;
         }
         .completed { text-decoration: line-through; color: #888; }
         .nav { margin-bottom: 20px; }
-        .nav a { margin-right: 15px; text-decoration: none; color: #007bff; }
-        .delete-btn { background: #ff4444; color: white; border: none; padding: 4px 8px; }
+        .nav a { 
+            margin-right: 15px; 
+            text-decoration: none; 
+            color: #00cc33; 
+            font-weight: bold;
+        }
+        .nav a:hover { color: #00ff41; }
+        .delete-btn { 
+            background: #ff4444; 
+            color: white; 
+            border: none; 
+            padding: 4px 8px; 
+            text-decoration: none;
+            font-size: 12px;
+        }
+        .delete-btn:hover { background: #ff6666; }
+        small { color: #66ff66; }
+        p { color: #66ff66; }
     </style>
 </head>
 <body>
     <div class="nav">
         <a href="/">← Back to Active Tasks</a>
+        <a href="/export/completed" style="color: #ffcc00;">📊 Export Completed Tasks (CSV)</a>
     </div>
     
     <h1>{{ title }}</h1>
