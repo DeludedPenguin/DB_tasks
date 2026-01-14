@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ title }}</title>
+    <style>
+        body { 
+            font-family: 'Monaco', 'Menlo', 'Consolas', monospace; 
+            margin: 40px; 
+            background-color: #2d2d2d; 
+            color: #00ff41; 
+        }
+        input, button { 
+            padding: 10px; 
+            margin: 10px 0; 
+            background-color: #1a1a1a; 
+            color: #00ff41; 
+            border: 1px solid #555; 
+            font-family: inherit;
+            width: 300px;
+        }
+        button { 
+            background-color: #333; 
+            cursor: pointer; 
+            width: auto;
+            padding: 10px 20px;
+        }
+        button:hover { background-color: #555; }
+        .nav { margin-bottom: 20px; }
+        .nav a { 
+            color: #00cc33; 
+            text-decoration: none; 
+            font-weight: bold;
+        }
+        .nav a:hover { color: #00ff41; }
+        .color-picker {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .color-option {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid #555;
+            cursor: pointer;
+        }
+        .color-option.selected {
+            border-color: #00ff41;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <a href="/projects">← Back to Projects</a>
+    </div>
+    
+    <h1>+ New Project</h1>
+    
+    <form method="POST">
+        <div>
+            <label>Project Name:</label><br>
+            <input type="text" name="name" placeholder="e.g. Research, Teaching, Personal" required>
+        </div>
+        
+        <div>
+            <label>Color:</label><br>
+            <div class="color-picker">
+                <div class="color-option selected" style="background-color: #00cc33;" onclick="selectColor('#00cc33')"></div>
+                <div class="color-option" style="background-color: #007bff;" onclick="selectColor('#007bff')"></div>
+                <div class="color-option" style="background-color: #dc3545;" onclick="selectColor('#dc3545')"></div>
+                <div class="color-option" style="background-color: #ffc107;" onclick="selectColor('#ffc107')"></div>
+                <div class="color-option" style="background-color: #6f42c1;" onclick="selectColor('#6f42c1')"></div>
+                <div class="color-option" style="background-color: #20c997;" onclick="selectColor('#20c997')"></div>
+            </div>
+            <input type="hidden" name="color" id="color" value="#00cc33">
+        </div>
+        
+        <button type="submit">Create Project</button>
+    </form>
+    
+    <script>
+        function selectColor(color) {
+            // Remove selected class from all options
+            document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
+            // Add selected class to clicked option
+            event.target.classList.add('selected');
+            // Update hidden input
+            document.getElementById('color').value = color;
+        }
+    </script>
+</body>
+</html>

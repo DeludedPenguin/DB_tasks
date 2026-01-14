@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ title }}</title>
+    <style>
+        body { 
+            font-family: 'Monaco', 'Menlo', 'Consolas', monospace; 
+            margin: 40px; 
+            background-color: #2d2d2d; 
+            color: #00ff41; 
+        }
+        .project {
+            padding: 15px;
+            border-bottom: 1px solid #444;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .project-name {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .project-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 15px;
+        }
+        .nav { margin-bottom: 20px; }
+        .nav a { 
+            margin-right: 15px; 
+            text-decoration: none; 
+            color: #00cc33; 
+            font-weight: bold;
+        }
+        .nav a:hover { color: #00ff41; }
+        button {
+            background-color: #333;
+            color: #00ff41;
+            border: 1px solid #555;
+            padding: 10px 20px;
+            font-family: inherit;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        button:hover { background-color: #555; }
+        a.button {
+            background-color: #333;
+            color: #00ff41;
+            border: 1px solid #555;
+            padding: 10px 20px;
+            font-family: inherit;
+            text-decoration: none;
+            display: inline-block;
+        }
+        a.button:hover { background-color: #555; }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <a href="/">← Back to Tasks</a>
+        <a href="/projects/new" class="button">+ New Project</a>
+    </div>
+    
+    <h1>📁 {{ title }}</h1>
+    
+    {% if projects %}
+        {% for project in projects %}
+            <div class="project">
+                <div style="display: flex; align-items: center;">
+                    <div class="project-color" style="background-color: {{ project.color }};"></div>
+                    <span class="project-name">{{ project.name }}</span>
+                </div>
+                <div>
+                    <a href="/projects/{{ project.id }}" class="button">View Tasks</a>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p style="color: #66ff66;">No projects yet! <a href="/projects/new">Create your first project</a></p>
+    {% endif %}
+</body>
+</html>

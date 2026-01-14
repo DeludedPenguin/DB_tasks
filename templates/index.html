@@ -47,50 +47,76 @@
         a { color: #00cc33; text-decoration: none; }
         a:hover { color: #00ff41; }
         small { color: #66ff66; }
+        .project-tag {
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 8px;
+        }
     </style>
 </head>
 <body>
-    <h1>{{ title }}</h1>
-    
     <div class="nav">
-        <a href="/timer" style="color: #ff6666;">⏲️ focus timer</a>
-        <a href="/completed">✅ view completed tasks →</a>
-        <a href="/export/active" style="color: #ffcc00;">📊 export active tasks (CSV)</a>
+        <a href="/completed">View Completed Tasks →</a>
+        <a href="/export/active" style="color: #ffcc00;">📊 Export Active Tasks (CSV)</a>
+        <a href="/timer" style="color: #ff6666;">🍅 Focus Timer</a>
+        <a href="/projects" style="color: #66ccff;">📁 Projects</a>
     </div>
+    
+    <h1>{{ title }}</h1>
     
     <form method="POST" action="/add">
         <input type="text" name="task" placeholder="Add a new task..." required>
-        <label>do date: <input type="date" name="do_date"></label>
-        <label>due date: <input type="date" name="due_date"></label>
-        <label>priority: 
+        <label>Do Date: <input type="date" name="do_date"></label>
+        <label>Due Date: <input type="date" name="due_date"></label>
+        <label>Priority: 
             <select name="priority">
-                <option value="0">none</option>
-                <option value="1">low</option>
-                <option value="2">medium</option>
-                <option value="3">high</option>
+                <option value="0">None</option>
+                <option value="1">Low</option>
+                <option value="2">Medium</option>
+                <option value="3">High</option>
             </select>
         </label>
-        <button type="submit">add task</button>
+        <label>Project: 
+            <select name="project_id">
+                <option value="">No Project</option>
+                {% for project in projects %}
+                    <option value="{{ project.id }}">{{ project.name }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <button type="submit">Add Task</button>
     </form>
     
-    <h2>active tasks:</h2>
-    {% for task in tasks %}
-        <div class="task {{ 'completed' if task.completed else '' }}">
-            <span>{{ task.name }}</span>
-            {% if task.priority_text %}
-                <span style="color: {{ task.priority_color }}; font-weight: bold;">[{{ task.priority_text }}]</span>
-            {% endif %}
-            <small>
-                {% if task.do_date %}Do: {{ task.do_date }}{% endif %}
-                {% if task.due_date %}Due: {{ task.due_date }}{% endif %}
-            </small>
-            <div>
-                {% if not task.completed %}
-                    <a href="/complete/{{ task.id }}">✓ complete</a>
+    <h2>Active Tasks:</h2>
+    
+    {% if tasks %}
+        {% for task in tasks %}
+            <div class="task {{ 'completed' if task.completed else '' }}">
+                <span>
+                    {% if task.project %}
+                        <span class="project-tag" style="background-color: {{ task.project.color }}; color: white;">[{{ task.project.name }}]</span>
+                    {% endif %}
+                    {{ task.name }}
+                </span>
+                {% if task.priority_text %}
+                    <span style="color: {{ task.priority_color }}; font-weight: bold;">[{{ task.priority_text }}]</span>
                 {% endif %}
-                <a href="/delete/{{ task.id }}" class="delete-btn">delete</a>
+                <small>
+                    {% if task.do_date %}Do: {{ task.do_date }}{% endif %}
+                    {% if task.due_date %}Due: {{ task.due_date }}{% endif %}
+                </small>
+                <div>
+                    {% if not task.completed %}
+                        <a href="/complete/{{ task.id }}">✓ Complete</a>
+                    {% endif %}
+                    <a href="/delete/{{ task.id }}" class="delete-btn">Delete</a>
+                </div>
             </div>
-        </div>
-    {% endfor %}
+        {% endfor %}
+    {% else %}
+        <p style="color: #66ff66;">No tasks yet!</p>
+    {% endif %}
 </body>
 </html>

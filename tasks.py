@@ -1,7 +1,7 @@
 import csv
 from io import StringIO
 from flask import Flask, render_template, request, redirect, url_for, make_response
-from models import db, Task, Timer
+from models import db, Task, Timer, Project
 from datetime import datetime, timezone
 
 app = Flask(__name__)
@@ -15,13 +15,14 @@ db.init_app(app)
 
 @app.route('/')
 def home():
-    # Only show incomplete tasks
     tasks = Task.query.filter_by(completed=False)\
                      .order_by((Task.due_date == None), Task.due_date, Task.priority.desc())\
                      .all()
+    projects = Project.query.all()  # For the dropdown
     return render_template('index.html', 
-                         title="DB_tasks", 
-                         tasks=tasks)
+                         title="My Task Manager", 
+                         tasks=tasks,
+                         projects=projects)
 
 @app.route('/add', methods=['POST'])
 def add_task():
@@ -31,7 +32,7 @@ def add_task():
     do_date = request.form['do_date'] if request.form['do_date'] else None
     due_date = request.form['due_date'] if request.form['due_date'] else None
     priority = int(request.form['priority']) if request.form['priority'] else 0
-
+    project_id = int(request.form['project_id']) if request.form['project_id'] else None
     
     # Convert string dates to date objects
     if do_date:
@@ -39,7 +40,7 @@ def add_task():
     if due_date:
         due_date = datetime.strptime(due_date, '%Y-%m-%d').date()
     
-    new_task = Task(name=task_name, do_date=do_date, due_date=due_date, priority=priority)
+    new_task = Task(name=task_name, do_date=do_date, due_date=due_date, priority=priority, project_id=project_id)
     db.session.add(new_task)
     db.session.commit()
     return redirect(url_for('home'))
@@ -216,6 +217,33 @@ def export_timers_csv():
     response.headers['Content-Disposition'] = 'attachment; filename=focus_sessions.csv'
     
     return response
+
+@app.route('/projects')
+def projects():
+    projects = Project.query.all()
+    return render_template('projects.html', projects=projects, title="Projects")
+
+@app.route('/projects/new', methods=['GET', 'POST'])
+def new_project():
+    if request.method == 'POST':
+        name = request.form['name']
+        color = request.form.get('color', '#00cc33')
+        
+        project = Project(name=name, color=color)
+        db.session.add(project)
+        db.session.commit()
+        
+        return redirect(url_for('projects'))
+    
+    return render_template('new_project.html', title="New Project")
+
+@app.route('/projects/<int:project_id>')
+def project_tasks(project_id):
+    project = Project.query.get_or_404(project_id)
+    tasks = Task.query.filter_by(project_id=project_id, completed=False)\
+                     .order_by((Task.due_date == None), Task.due_date, Task.priority.desc())\
+                     .all()
+    return render_template('project_tasks.html', project=project, tasks=tasks, title=f"{project.name} Tasks")
 
 # Create database tables
 with app.app_context():
