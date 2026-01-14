@@ -24,6 +24,8 @@ def add_task():
     task_name = request.form['task']
     do_date = request.form['do_date'] if request.form['do_date'] else None
     due_date = request.form['due_date'] if request.form['due_date'] else None
+    priority = int(request.form['priority']) if request.form['priority'] else 0
+
     
     # Convert string dates to date objects
     if do_date:
@@ -31,7 +33,7 @@ def add_task():
     if due_date:
         due_date = datetime.strptime(due_date, '%Y-%m-%d').date()
     
-    new_task = Task(name=task_name, do_date=do_date, due_date=due_date)
+    new_task = Task(name=task_name, do_date=do_date, due_date=due_date, priority=priority)
     db.session.add(new_task)
     db.session.commit()
     return redirect(url_for('home'))
