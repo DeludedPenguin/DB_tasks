@@ -12,7 +12,10 @@ db.init_app(app)
 
 @app.route('/')
 def home():
-    tasks = Task.query.all()  # Get all tasks from database
+    # SQLite-friendly sorting: due date ascending, with nulls last, then priority descending
+    tasks = Task.query.filter_by(completed=False)\
+                     .order_by((Task.due_date == None), Task.due_date, Task.priority.desc())\
+                     .all()
     return render_template('index.html', 
                          title="My Task Manager", 
                          tasks=tasks)
