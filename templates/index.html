@@ -14,10 +14,16 @@
         .completed { text-decoration: line-through; color: #888; }
         input, button { padding: 8px; margin: 5px; }
         .delete-btn { background: #ff4444; color: white; border: none; padding: 4px 8px; }
+        .nav { margin-bottom: 20px; }
+        .nav a { margin-right: 15px; text-decoration: none; color: #007bff; }
     </style>
 </head>
 <body>
     <h1>{{ title }}</h1>
+    
+    <div class="nav">
+        <a href="/completed">View Completed Tasks →</a>
+    </div>
     
     <form method="POST" action="/add">
         <input type="text" name="task" placeholder="Add a new task..." required>

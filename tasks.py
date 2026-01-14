@@ -12,7 +12,7 @@ db.init_app(app)
 
 @app.route('/')
 def home():
-    # SQLite-friendly sorting: due date ascending, with nulls last, then priority descending
+    # Only show incomplete tasks
     tasks = Task.query.filter_by(completed=False)\
                      .order_by((Task.due_date == None), Task.due_date, Task.priority.desc())\
                      .all()
@@ -54,6 +54,16 @@ def delete_task(task_id):
     db.session.delete(task)
     db.session.commit()
     return redirect(url_for('home'))
+
+@app.route('/completed')
+def completed_tasks():
+    # Show completed tasks, most recent first
+    tasks = Task.query.filter_by(completed=True)\
+                     .order_by(Task.created_at.desc())\
+                     .all()
+    return render_template('completed.html', 
+                         title="Completed Tasks", 
+                         tasks=tasks)
 
 # Create database tables
 with app.app_context():

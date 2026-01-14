@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ title }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .task { 
+            padding: 10px; 
+            border-bottom: 1px solid #eee; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+        }
+        .completed { text-decoration: line-through; color: #888; }
+        .nav { margin-bottom: 20px; }
+        .nav a { margin-right: 15px; text-decoration: none; color: #007bff; }
+        .delete-btn { background: #ff4444; color: white; border: none; padding: 4px 8px; }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <a href="/">← Back to Active Tasks</a>
+    </div>
+    
+    <h1>{{ title }}</h1>
+    
+    {% if tasks %}
+        {% for task in tasks %}
+            <div class="task completed">
+                <span>{{ task.name }}</span>
+                {% if task.priority_text %}
+                    <span style="color: {{ task.priority_color }}; font-weight: bold;">[{{ task.priority_text }}]</span>
+                {% endif %}
+                <small>
+                    {% if task.do_date %}Do: {{ task.do_date }}{% endif %}
+                    {% if task.due_date %}Due: {{ task.due_date }}{% endif %}
+                    Completed: {{ task.created_at.strftime('%Y-%m-%d') }}
+                </small>
+                <div>
+                    <a href="/delete/{{ task.id }}" class="delete-btn">Delete</a>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No completed tasks yet!</p>
+    {% endif %}
+</body>
+</html>
