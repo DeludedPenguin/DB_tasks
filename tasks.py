@@ -159,13 +159,17 @@ def timer_active(timer_id):
 
 @app.route('/timer/<int:timer_id>/complete', methods=['POST'])
 def complete_timer(timer_id):
-    from datetime import datetime
-    
     timer = Timer.query.get_or_404(timer_id)
     timer.end_time = datetime.now(timezone.utc)
-
-    # Calculate actual duration in minutes
-    duration = timer.end_time - timer.start_time
+    
+    # Calculate actual duration in minutes - make sure both datetimes are timezone-aware
+    if timer.start_time.tzinfo is None:
+        # If start_time is naive, make it UTC
+        start_time_aware = timer.start_time.replace(tzinfo=timezone.utc)
+    else:
+        start_time_aware = timer.start_time
+    
+    duration = timer.end_time - start_time_aware
     timer.duration_minutes = int(duration.total_seconds() / 60)
     
     timer.notes = request.form.get('notes', '')
